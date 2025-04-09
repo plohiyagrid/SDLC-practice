@@ -6,13 +6,13 @@ import SportEvent.venues.Venue;
 import java.util.Date;
 
 public class Match {
-    private int matchId;  // Unique match identifier
+    private int matchId;
     private TeamRegistration team1;
     private TeamRegistration team2;
     private Venue venue;
     private Date matchDate;
-    private String matchStatus;  // Match status ("Ongoing", "Completed", "Drawn")
-    private TeamRegistration winner;  // Winner (null if not decided)
+    private String matchStatus;
+    private TeamRegistration winner;
 
     // Constructor
     public Match(int matchId, TeamRegistration team1, TeamRegistration team2, Venue venue, Date matchDate) {
@@ -21,7 +21,7 @@ public class Match {
         this.team2 = team2;
         this.venue = venue;
         this.matchDate = matchDate;
-        this.matchStatus = "Ongoing";  // Default status
+        this.matchStatus = "Ongoing";
         this.winner = null;
     }
 
@@ -44,7 +44,7 @@ public class Match {
     public void setWinner(TeamRegistration winner) {
         if (winner != null && (winner.equals(team1) || winner.equals(team2))) {
             this.winner = winner;
-            this.matchStatus = "Completed";  // Automatically mark the match as completed
+            this.matchStatus = "Completed";
         } else {
             System.out.println("Invalid winner selection!");
         }

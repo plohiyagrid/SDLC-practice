@@ -28,12 +28,11 @@ public class FixtureGenerator {
         Random random = new Random();
         int matchId = 1;
 
-        // Creating matches in round-robin format
         for (int i = 0; i < teams.size(); i++) {
             for (int j = i + 1; j < teams.size(); j++) {
                 if (!venues.isEmpty()) {
-                    Venue venue = venues.get(random.nextInt(venues.size())); // Random venue
-                    Date matchDate = new Date(System.currentTimeMillis() + (matchId * 86400000L)); // Future date
+                    Venue venue = venues.get(random.nextInt(venues.size()));
+                    Date matchDate = new Date(System.currentTimeMillis() + (matchId * 86400000L));
                     fixtures.add(new Match(matchId++, teams.get(i), teams.get(j), venue, matchDate));
                 }
             }

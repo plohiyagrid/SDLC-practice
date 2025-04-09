@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class EventManager {
-    private List<Event> events;
-    private List<Venue> venues;
+    private final List<Event> events;
+    private final List<Venue> venues;
 
     public EventManager() {
         this.events = new ArrayList<>();
