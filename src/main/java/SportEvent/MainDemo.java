@@ -66,7 +66,5 @@ public class MainDemo {
 
         cricketEvent.displayFixtures();
 
-
-
     }
 }
