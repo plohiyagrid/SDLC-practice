@@ -3,68 +3,116 @@ package SportEvent.match;
 import SportEvent.registration.TeamRegistration;
 import SportEvent.venues.Venue;
 
-import java.util.Date;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "matches")
 public class Match {
-    private int matchId;
-    private TeamRegistration team1;
-    private TeamRegistration team2;
-    private Venue venue;
-    private Date matchDate;
-    private String matchStatus;
-    private TeamRegistration winner;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    // Constructor
-    public Match(int matchId, TeamRegistration team1, TeamRegistration team2, Venue venue, Date matchDate) {
-        this.matchId = matchId;
+    @ManyToOne
+    @JoinColumn(name = "venue_id", nullable = false)
+    private Venue venue;
+
+    @ManyToOne
+    @JoinColumn(name = "team1_id", nullable = false)
+    private TeamRegistration team1;
+
+    @ManyToOne
+    @JoinColumn(name = "team2_id", nullable = false)
+    private TeamRegistration team2;
+
+    @Column(nullable = false)
+    private LocalDateTime startTime;
+
+    @Column(nullable = false)
+    private Integer durationMinutes;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MatchStatus status = MatchStatus.SCHEDULED;
+
+    @Column
+    private String winnerTeamName;
+
+    public Match() {
+    }
+
+    public Match(TeamRegistration team1, TeamRegistration team2, Venue venue, LocalDateTime startTime) {
         this.team1 = team1;
         this.team2 = team2;
         this.venue = venue;
-        this.matchDate = matchDate;
-        this.matchStatus = "Ongoing";
-        this.winner = null;
+        this.startTime = startTime;
+        this.status = MatchStatus.SCHEDULED;
+        this.durationMinutes = 180; // default duration
     }
 
-    // Getter for matchId
-    public int getMatchId() {
-        return matchId;
+    public Long getId() {
+        return id;
     }
 
-    // Getter for matchStatus
-    public String getMatchStatus() {
-        return matchStatus;
+    public MatchStatus getStatus() {
+        return status;
     }
 
-    // Setter for match status
-    public void setMatchStatus(String status) {
-        this.matchStatus = status;
+    public void setStatus(MatchStatus status) {
+        this.status = status;
     }
 
-    // Setter for winner
-    public void setWinner(TeamRegistration winner) {
-        if (winner != null && (winner.equals(team1) || winner.equals(team2))) {
-            this.winner = winner;
-            this.matchStatus = "Completed";
-        } else {
-            System.out.println("Invalid winner selection!");
-        }
+    public void setWinner(String winnerTeamName) {
+        this.winnerTeamName = winnerTeamName;
+        this.status = MatchStatus.COMPLETED;
     }
 
-    // Setter for draw
     public void setDraw() {
-        this.matchStatus = "Drawn";  // Mark the match as Drawn
+        this.status = MatchStatus.DRAWN;
     }
 
-    // Display match details
     public void displayMatchDetails() {
-        System.out.println("Match ID: " + matchId);
+        System.out.println("Match ID: " + id);
         System.out.println("Teams: " + team1.getTeamName() + " vs " + team2.getTeamName());
         System.out.println("Venue: " + venue.getName());
-        System.out.println("Date: " + matchDate);
-        System.out.println("Match Status: " + matchStatus);
-        if (winner != null) {
-            System.out.println("Winner: " + winner.getTeamName());
+        System.out.println("Date: " + startTime);
+        System.out.println("Match Status: " + status);
+        if (winnerTeamName != null) {
+            System.out.println("Winner: " + winnerTeamName);
         }
         System.out.println("-----------------------------------");
+    }
+
+    // Getters and setters
+    public TeamRegistration getTeam1() {
+        return team1;
+    }
+
+    public TeamRegistration getTeam2() {
+        return team2;
+    }
+
+    public Venue getVenue() {
+        return venue;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public Integer getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public void setDurationMinutes(Integer durationMinutes) {
+        this.durationMinutes = durationMinutes;
+    }
+
+    public String getWinnerTeamName() {
+        return winnerTeamName;
     }
 }

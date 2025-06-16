@@ -1,70 +1,52 @@
 // File: SportEvent/MainDemo.java
 package SportEvent;
 
+import SportEvent.event.CricketEvent;
 import SportEvent.event.Event;
-import SportEvent.event.EventFactory;
 import SportEvent.event.EventStatus;
-import SportEvent.match.TournamentHandler;
-import SportEvent.registration.IndividualRegistration;
 import SportEvent.registration.TeamRegistration;
 import SportEvent.venues.Venue;
-import SportEvent.venues.VenueAssignmentHandler;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 
 public class MainDemo {
     public static void main(String[] args) {
-        // Initialize the EventManager
-        EventManager eventManager = new EventManager();
-
         // Create venues
-        Venue venue1 = new Venue(1, "Central Stadium", "Downtown", 5000);
-        Venue venue2 = new Venue(2, "East Ground", "Eastside", 3000);
-        eventManager.addVenue(venue1);
-        eventManager.addVenue(venue2);
+        Venue venue1 = new Venue("Lords Cricket Ground", "London", 30000);
+        Venue venue2 = new Venue("MCG", "Melbourne", 100000);
 
-        // Create events
-        Event cricketEvent = EventFactory.createCricketEvent(1, "T20 Cricket Tournament", 20, 11, new Date());
-        Event badmintonEvent = EventFactory.createBadmintonEvent(2, "Badminton Championship", true, new Date());
-        eventManager.addEvent(cricketEvent);
-        eventManager.addEvent(badmintonEvent);
+        // Create a cricket event
+        CricketEvent cricketEvent = new CricketEvent("IPL 2024", LocalDateTime.now().plusDays(30));
+        cricketEvent.setVenue(venue1);
 
-        TournamentHandler cricketTournamentHandler = new TournamentHandler(cricketEvent);
+        // Create team registrations
+        TeamRegistration team1 = new TeamRegistration("Mumbai Indians", "Rohit Sharma", "rohit@mi.com", "+91-9999999999");
+        team1.setTeamSize(11);
+        team1.addPlayer("Rohit Sharma");
+        team1.addPlayer("Hardik Pandya");
 
-        // Register teams for cricket
-        TeamRegistration team1 = new TeamRegistration("Eagles", "John Doe", "john@example.com", "123-456-7890");
-        team1.addPlayer("Player 1");
-        team1.addPlayer("Player 2");
+        TeamRegistration team2 = new TeamRegistration("Chennai Super Kings", "MS Dhoni", "dhoni@csk.com", "+91-8888888888");
+        team2.setTeamSize(11);
+        team2.addPlayer("MS Dhoni");
+        team2.addPlayer("Ravindra Jadeja");
+
+        // Register teams
         cricketEvent.registerParticipant(team1);
-
-        TeamRegistration team2 = new TeamRegistration("Lions", "Jane Smith", "jane@example.com", "123-456-7891");
-        team2.addPlayer("Player A");
-        team2.addPlayer("Player B");
         cricketEvent.registerParticipant(team2);
 
-        TeamRegistration team3 = new TeamRegistration("Lions", "Jane Smith", "jane@example.com", "123-456-7891");
-        team2.addPlayer("Player p");
-        team2.addPlayer("Player q");
-        cricketEvent.registerParticipant(team3);
+        // Close registration and start event
+        cricketEvent.setStatus(EventStatus.REGISTRATION_CLOSED);
+        System.out.println("\nEvent Status: " + cricketEvent.getStatus());
 
-        TeamRegistration team4 = new TeamRegistration("Lions", "Jane Smith", "jane@example.com", "123-456-7891");
-        team2.addPlayer("Player r");
-        team2.addPlayer("Player s");
-        cricketEvent.registerParticipant(team4);
+        // Setup event
+        cricketEvent.setupEvent();
 
-        // Close registration for cricket event
-        cricketEvent.updateEventStatus(EventStatus.REGISTRATION_CLOSED);
-
-        // Generate fixtures for cricket event
-        cricketEvent.generateFixtures(eventManager.getVenues());
-
-        // Display the generated fixtures for the cricket event
-        cricketEvent.displayFixtures();
-
-        cricketTournamentHandler.completeMatch(1 , team2);
-        cricketTournamentHandler.completeMatch(2, team3);
-
-        cricketEvent.displayFixtures();
-
+        // Display registrations
+        System.out.println("\nRegistered Teams:");
+        cricketEvent.getRegistrations().forEach(registration -> {
+            TeamRegistration team = (TeamRegistration) registration;
+            System.out.println("- " + team.getTeamName() + " (Contact: " + team.getContactName() + ")");
+        });
     }
 }

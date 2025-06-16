@@ -31,13 +31,6 @@ public class DatabaseUtils {
         this.password = password;
     }
 
-    /**
-     * Executes a SQL query that doesn't return results (e.g., INSERT, UPDATE, DELETE, CREATE).
-     * Uses varargs to pass parameters to the prepared statement.
-     *
-     * @param query SQL query with placeholders
-     * @param args  Arguments to replace placeholders in the query
-     */
     public void execute(String query, Object... args) {
         try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password);
              PreparedStatement statement = connection.prepareStatement(query)) {
@@ -45,44 +38,26 @@ public class DatabaseUtils {
             for (int i = 0; i < args.length; i++) {
                 statement.setObject(i + 1, args[i]);
             }
-
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to execute query: " + query, e);
         }
     }
 
-    /**
-     * Executes a SQL query that doesn't return results (e.g., INSERT, UPDATE, DELETE, CREATE).
-     * Takes a Consumer that has access to the PreparedStatement for more complex parameter setting.
-     *
-     * @param query    SQL query with placeholders
-     * @param consumer Consumer that sets parameters on the prepared statement
-     */
+
     public void execute(String query, Consumer<PreparedStatement> consumer) {
         try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password);
              PreparedStatement statement = connection.prepareStatement(query)) {
 
-            // Let the consumer set parameters
             consumer.accept(statement);
-
             statement.executeUpdate();
+
         } catch (SQLException e) {
             throw new RuntimeException("Failed to execute query: " + query, e);
         }
     }
 
-    /**
-     * Executes a query and returns a single result.
-     * Returns null if no results found.
-     * Throws an exception if more than one result is found.
-     *
-     * @param query  SQL query with placeholders
-     * @param mapper Function to map ResultSet to desired object type
-     * @param args   Arguments to replace placeholders in the query
-     * @param <T>    Return type
-     * @return Single result of type T or null if no results
-     */
+
     public <T> T findOne(String query, Function<ResultSet, T> mapper, Object... args) {
         try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password);
              PreparedStatement statement = connection.prepareStatement(query)) {

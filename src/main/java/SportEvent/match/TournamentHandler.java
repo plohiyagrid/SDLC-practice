@@ -1,60 +1,37 @@
 package SportEvent.match;
 
-import SportEvent.event.EventStatus;
-import SportEvent.registration.TeamRegistration;
 import SportEvent.event.Event;
-import java.util.Optional;
+import SportEvent.registration.TeamRegistration;
+import SportEvent.repository.MatchRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+
+@Component
 public class TournamentHandler {
-    private Event event;  // TournamentHandler works with a specific event
+    @Autowired
+    private MatchRepository matchRepository;
 
-    // Constructor that accepts a specific event
-    public TournamentHandler(Event event) {
-        this.event = event;
+    public void completeMatch(Long matchId, String winnerTeamName) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new RuntimeException("Match not found"));
+        match.setWinner(winnerTeamName);
+        matchRepository.save(match);
     }
 
-    // Complete a match with a winner
-    public void completeMatch(int matchId, TeamRegistration winner) {
-        if (event.getStatus() != EventStatus.EVENT_ONGOING) {
-            System.out.println("The event is not ongoing. Cannot complete matches.");
-            return;
-        }
-
-        Match match = getMatchById(matchId);
-        if (match != null) {
-            match.setWinner(winner);  // Mark the match as completed and set the winner
-            System.out.println("Match " + matchId + " completed: " + winner.getTeamName() + " won.");
-        } else {
-            System.out.println("Match not found.");
-        }
+    public void setMatchDraw(Long matchId) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new RuntimeException("Match not found"));
+        match.setDraw();
+        matchRepository.save(match);
     }
 
-    // Mark a match as a draw
-    public void drawMatch(int matchId) {
-        if (event.getStatus() != EventStatus.EVENT_ONGOING) {
-            System.out.println("The event is not ongoing. Cannot draw matches.");
-            return;
-        }
-
-        Match match = getMatchById(matchId);
-        if (match != null) {
-            match.setDraw();  // Mark the match as drawn
-            System.out.println("Match " + matchId + " ended in a draw.");
-        } else {
-            System.out.println("Match not found.");
-        }
+    public List<Match> getMatchesByEvent(Event event) {
+        return event.getFixtures();
     }
 
-    // Helper method to get a match by its ID
-    private Match getMatchById(int matchId) {
-        return event.getFixtures().stream()
-                .filter(match -> match.getMatchId() == matchId)
-                .findFirst()
-                .orElse(null);  // Return null if match not found
-    }
-
-    // Display all matches in the event
-    public void displayAllMatches() {
-        event.getFixtures().forEach(Match::displayMatchDetails);
+    public List<Match> getMatchesByStatus(MatchStatus status) {
+        return matchRepository.findByStatus(status);
     }
 }

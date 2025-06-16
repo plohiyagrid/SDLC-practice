@@ -1,14 +1,14 @@
 package SportEvent.event;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class EventFactory {
 
-    public static Event createCricketEvent(int id, String name, int overs, int teamSize, Date eventDate) {
-        return new CricketEvent(id, name, overs, teamSize, eventDate);
+    public static CricketEvent createCricketEvent(String name, LocalDateTime startDate) {
+        return new CricketEvent(name, startDate);
     }
 
-    public static Event createBadmintonEvent(int id, String name, boolean isDoubles, Date eventDate) {
-        return new BadmintonEvent(id, name, isDoubles, eventDate);
+    public static BadmintonEvent createBadmintonEvent(String name, LocalDateTime startDate) {
+        return new BadmintonEvent(name, startDate);
     }
 }

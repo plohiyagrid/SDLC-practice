@@ -1,57 +1,44 @@
 package SportEvent.venues;
 
-import SportEvent.EventManager;
 import SportEvent.event.Event;
 import SportEvent.event.EventStatus;
+import SportEvent.repository.VenueRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.List;
 
+@Component
 public class VenueAssignmentHandler {
-    private EventManager eventManager;
+    @Autowired
+    private VenueRepository venueRepository;
 
-    public VenueAssignmentHandler(EventManager eventManager) {
-        this.eventManager = eventManager;
+    public void assignVenueToEvent(Event event, Long venueId) {
+        Venue venue = venueRepository.findById(venueId)
+                .orElseThrow(() -> new RuntimeException("Venue not found"));
+
+        if (!venue.isAvailable(event.getStartDate())) {
+            throw new RuntimeException("Venue is not available for the event date");
+        }
+
+        event.setVenue(venue);
+        venue.book(event.getStartDate());
+        venueRepository.save(venue);
     }
 
-    public boolean assignVenue(int eventId, Venue preferredVenue) {
-        Optional<Event> eventOpt = eventManager.getEventById(eventId);
-
-        if (eventOpt.isEmpty()) {
-            System.out.println("Event with ID " + eventId + " not found.");
-            return false;
-        }
-
-        Event event = eventOpt.get();
-
-        if (event.getStatus() != EventStatus.REGISTRATION_CLOSED) {
-            System.out.println("Venue can only be assigned after registration closes.");
-            return false;
-        }
-
-        // Choose preferred venue if available, otherwise find an alternative
-        Venue venue = (preferredVenue != null && preferredVenue.isAvailable(event.getEventDate()))
-                ? preferredVenue
-                : findAvailableVenue(event);
-
-        if (venue == null) {
-            System.out.println("No available venues for event: " + event.getName());
-            return false;
-        }
-
-        event.selectVenue(venue);
-        venue.book(event.getEventDate());
-        event.updateEventStatus(EventStatus.EVENT_ONGOING);
-
-        System.out.println("✅ Venue " + venue.getName() + " assigned to event: " + event.getName());
-        return true;
+    public List<Venue> findAvailableVenues(LocalDateTime date) {
+        List<Venue> venues = venueRepository.findByIsAvailable(true);
+        venues.removeIf(venue -> !venue.isAvailable(date));
+        return venues;
     }
 
-    private Venue findAvailableVenue(Event event) {
-        for (Venue venue : eventManager.getVenues()) {
-            if (venue.isAvailable(event.getEventDate())) {
-                return venue;
-            }
+    public void releaseVenue(Event event) {
+        if (event.getVenue() != null) {
+            Venue venue = event.getVenue();
+            venue.setIsAvailable(true);
+            venueRepository.save(venue);
+            event.setVenue(null);
         }
-        return null;
     }
 }

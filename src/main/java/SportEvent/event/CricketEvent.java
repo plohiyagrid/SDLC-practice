@@ -1,37 +1,26 @@
 package SportEvent.event;
 
-import SportEvent.registration.Registration;
-import SportEvent.registration.TeamRegistration;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import java.time.LocalDateTime;
 
-import java.util.Date;
-
+@Entity
+@DiscriminatorValue("CRICKET")
 public class CricketEvent extends Event {
-    private int overs;
-    private int teamSize;
-
-    public CricketEvent(int id, String name, int overs, int teamSize) {
-        super(id, name);
-        this.overs = overs;
-        this.teamSize = teamSize;
+    protected CricketEvent() {
+        super();
     }
 
-    public CricketEvent(int id, String name, int overs, int teamSize, Date eventDate) {
-        super(id, name, eventDate);
-        this.overs = overs;
-        this.teamSize = teamSize;
-    }
-
-    @Override
-    public boolean registerParticipant(Registration registration) {
-        if (!(registration instanceof TeamRegistration)) {
-            System.out.println("Only teams can register for Cricket.");
-            return false;
-        }
-        return super.registerParticipant(registration);
+    public CricketEvent(String name, LocalDateTime startDate) {
+        super(name, startDate);
     }
 
     @Override
     public void setupEvent() {
-        System.out.println("Setting up Cricket event with " + overs + " overs and " + teamSize + " players per team.");
+        // Cricket specific setup logic
+        System.out.println("Setting up Cricket Event: " + getName());
+        System.out.println("- Preparing cricket pitch");
+        System.out.println("- Setting up boundary ropes");
+        System.out.println("- Arranging cricket equipment");
     }
 }

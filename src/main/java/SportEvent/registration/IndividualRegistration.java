@@ -1,20 +1,16 @@
 package SportEvent.registration;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
+@Entity
+@DiscriminatorValue("INDIVIDUAL")
 public class IndividualRegistration extends Registration {
-    private String playerName;
-    private int age;
-
-    public IndividualRegistration(String playerName, int age, String contactName, String contactEmail, String contactPhone) {
-        super(contactName, contactEmail, contactPhone);
-        this.playerName = playerName;
-        this.age = age;
+    protected IndividualRegistration() {
+        super();
     }
 
-    public String getPlayerName() {
-        return playerName;
-    }
-
-    public int getAge() {
-        return age;
+    public IndividualRegistration(String participantName, String contactName, String contactEmail, String contactPhone) {
+        super(participantName, contactName, contactEmail, contactPhone);
     }
 }

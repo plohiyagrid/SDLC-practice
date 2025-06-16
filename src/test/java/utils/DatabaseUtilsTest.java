@@ -4,7 +4,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
@@ -27,11 +30,21 @@ class DatabaseUtilsTest {
     static void setUp() throws IOException {
         dbUtils = new DatabaseUtils(JDBC_URL, USERNAME, PASSWORD);
 
-        String schemaSql = Files.readString(Paths.get("init/01-schema.sql"));
-        for (String stmt : schemaSql.split(";")) {
-            if (!stmt.isBlank()) {
-                dbUtils.execute(stmt.trim());
+        try (InputStream in = DatabaseUtilsTest.class.getClassLoader().getResourceAsStream("init/01-schema.sql")) {
+            if (in == null) {
+                throw new FileNotFoundException("init/01-schema.sql not found in resources");
             }
+
+            String schemaSql = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            for (String stmt : schemaSql.split(";")) {
+                if (!stmt.isBlank()) {
+                    dbUtils.execute(stmt.trim());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error during test DB setup: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
     }
 
